@@ -1,54 +1,53 @@
-#ifndef HATE_H
-#define HATE_H
+#ifndef __HATE_H
+#define __HATE_H
 
 #include <vector>
 #include <string>
-
 namespace hate {
 
-    /// @brief Converte a string para minúsculas.
-    /// @param orig A string original.
-    /// @return Uma string com todos os caracteres em minúsculo.
-    std::string to_lower(std::string orig);
+    ///@brief Gets a string input and returns it lowercased
+    ///@param orig The original string input
+    ///@return A lowercased string
+    std::string strtolower(std::string orig);
 
-    /// @brief Divide a string de entrada em substrings com base nos delimitadores fornecidos.
-    /// @param input A string a ser dividida.
-    /// @param delimiters Caracteres usados para divisão (padrão: espaço e tabulação).
-    /// @param remove_empty Se deve remover strings vazias do resultado (padrão: true).
-    /// @return Um vetor de strings resultante da divisão.
-    std::vector<std::string> split(const std::string& input, const std::string& delimiters = " \t", bool remove_empty = true);
+    ///@brief Gets a string input (most commonly a line of input) and splits it into a vector of strings
+    ///@param input The line to be split
+    ///@param delimiters the paramater to split the line (a space by default)
+    ///@return A vector of strings with the input minus the delimiter parameter
+    std::vector<std::string> split(std::string input, std::string delimiters=" \t", bool removervazios=true);
 
-    /// @brief Remove delimitadores do início da string.
-    /// @param input A string a ser tratada.
-    /// @param delimiters Caracteres a serem removidos (padrão: espaço e tabulação).
-    /// @return A string sem os delimitadores à esquerda.
-    std::string ltrim(const std::string& input, const std::string& delimiters = " \t");
+    ///@brief Cleans the beginning of the string input by removing the specified delimiter from the left side
+    ///@param input The string to be cleaned
+    ///@param delimiters the paramater to be removed from the left side of the string
+    ///@return the cleaned version of the string
+    std::string ltrim(std::string input, std::string delimiters = " \t");
 
-    /// @brief Remove delimitadores do fim da string.
-    /// @param input A string a ser tratada.
-    /// @param delimiters Caracteres a serem removidos (padrão: espaço e tabulação).
-    /// @return A string sem os delimitadores à direita.
-    std::string rtrim(const std::string& input, const std::string& delimiters = " \t");
+    ///@brief Cleans the end of the string input by removing the specified delimiter from the right side
+    ///@param input The string to be cleaned
+    ///@param delimiters the paramater to be removed from the right side of the string
+    ///@return the cleaned version of the string
+    std::string rtrim(std::string input, std::string delimiters = " \t");
 
-    /// @brief Gera uma progressão aritmética entre dois valores.
-    /// @param first Primeiro termo da progressão.
-    /// @param last Último termo da progressão.
-    /// @param middle_terms Quantidade de termos intermediários.
-    /// @return Vetor contendo a progressão aritmética completa.
-    std::vector<int> interpolate_arithmetic(int first, int last, int middle_terms);
+    /// @brief creates an arithmetic progression with the first and last terms of the chart
+    /// @param first the first element of the A.P
+    /// @param last the last element of the A.P
+    /// @param middle_terms the amount of terms to be added between the first and last
+    /// @return A vector of ints with the artithmetic progression
+    std::vector<int> interpolate_AP(int first, int last, int middle_terms);
+    
+    /// @brief counts the amount of digits in a given int
+    /// @param a the int to be counted
+    /// @return self explanatory
+    int amount_of_digits_int(int a);
 
-    /// @brief Conta quantos dígitos possui um número inteiro.
-    /// @param value O número a ser contado.
-    /// @return Número de dígitos.
-    int count_digits(int value);
+     /// @brief checks if the given element is part of the vector before the specified value(it is used to draw the "|" on the X axis) 
+    /// @param j the element to be searched for in the vector
+    /// @param places the vector to be searched through
+    /// @param i the value that limits the search for the element
+    /// @return returns true if the element is in the range and false otherwise
+    bool is_equal_to_in_vector(int j, std::vector<int> places, unsigned int i);
 
-    /// @brief Verifica se um valor está presente em um vetor até uma certa posição.
-    /// @param target O valor a ser procurado.
-    /// @param values Vetor onde será feita a busca.
-    /// @param limit Índice limite até onde buscar.
-    /// @return true se encontrado antes do limite; false caso contrário.
-    bool exists_before(const std::vector<int>& values, int target, unsigned int limit);
+};
 
-} // namespace hate
 
-#endif // HATE_H
+#endif

@@ -1,78 +1,129 @@
 #include "hate.h"
-#include <cctype>  // para tolower
 
-namespace hate {
 
-std::string to_lower(std::string str) {
-    for (char& c : str)
-        c = std::tolower(static_cast<unsigned char>(c));
-    return str;
-}
+    ///@brief Gets a string input and returns it lowercased
+    ///@param orig The original string input
+    ///@return A lowercased string
+    std::string hate::strtolower(std::string orig)
+    {
+        int n = orig.size();
+        for(int i=0; i<n; ++i)
+        {
+            orig[i] = tolower(orig[i]);
+        }
+        return orig;
+    }
 
-std::vector<std::string> split(const std::string& input, const std::string& delimiters, bool remove_empty) {
-    std::vector<std::string> result;
-    std::string temp;
+    ///@brief Gets a string input (most commonly a line of input) and splits it into a vector of strings
+    ///@param input The line to be split
+    ///@param delimiters the paramater to split the line (a space by default)
+    ///@return A vector of strings with the input minus the delimiter parameter
+    std::vector<std::string> hate::split(std::string input, std::string delimiters, bool removervazios)
+    {
+        std::vector<std::string> out{};
+        std::string calma{};
+        int size = input.size();
+        for(int i=0; i<size; ++i)
+        {
+            if(delimiters.find(input[i])==std::string::npos)
+            {
+                calma+=input[i];        
+                if(i==size-1)
+                {
+                    out.push_back(calma);
+                } 
+            }
+            else
+            {
+                if(!removervazios || calma.size() > 0)
+                {
+                out.push_back(calma);
+                }
+                calma.clear();
+                if(i == size-1 && !removervazios){
+                    out.push_back("");
+                }
+            }
+        }
+        return out;    
+    }
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        if (delimiters.find(input[i]) == std::string::npos) {
-            temp += input[i];
-            if (i == input.size() - 1 && (!remove_empty || !temp.empty()))
-                result.push_back(temp);
-        } else {
-            if (!remove_empty || !temp.empty())
-                result.push_back(temp);
-            temp.clear();
-            if (i == input.size() - 1 && !remove_empty)
-                result.push_back("");
+
+    ///@brief Cleans the beginning of the string input by removing the specified delimiter from the left side
+    ///@param input The string to be cleaned
+    ///@param delimiters the paramater to be removed from the left side of the string
+    ///@return the cleaned version of the string
+    std::string hate::ltrim(std::string input, std::string delimiters)
+    {
+        int indice=0;
+        for(char a : input){
+            if(delimiters.find(a) == std::string::npos)
+            {
+                break; 
+            }
+            indice++;
+        }
+        return input.substr(indice);
+    }
+
+    ///@brief Cleans the end of the string input by removing the specified delimiter from the right side
+    ///@param input The string to be cleaned
+    ///@param delimiters the paramater to be removed from the right side of the string
+    ///@return the cleaned version of the string
+    std::string hate::rtrim(std::string input, std::string delimiters)
+    {
+        for(int indice = input.size()-1; indice>=0; indice--)
+        {
+            if(delimiters.find(input[indice]) == std::string::npos)
+            {
+                return input.substr(0, indice+1);
+            }
+        }
+        return input.substr(0, 0);
+    }
+    /// @brief creates an arithmetic progression with the first and last terms of the chart
+    /// @param first the first element of the A.P
+    /// @param last the last element of the A.P
+    /// @param middle_terms the amount of terms to be added between the first and last
+    /// @return A vector of ints with the artithmetic progression
+    std::vector<int> hate::interpolate_AP(int first, int last, int middle_terms){
+        std::vector<int> result;
+        float mean = (last-first)/float(middle_terms+1);
+        //std::cout << mean << "\n";
+        for(int i=0;i<middle_terms+2;i++){
+            result.push_back(first+i*mean);
+        } 
+        //std::cout << middle_terms+2 << "\n";
+    return result;
+    }
+
+    /// @brief counts the amount of digits in a given int
+    /// @param a the int to be counted
+    /// @return self explanatory
+    int hate::amount_of_digits_int(int a){
+        if(a==0){
+            return 1;
+        }
+        else{
+            int result=0;
+            while(a>0){
+                result++;
+                a/=10;
+            }
+            return result;
         }
     }
-
-    return result;
-}
-
-std::string ltrim(const std::string& input, const std::string& delimiters) {
-    size_t start = 0;
-    while (start < input.size() && delimiters.find(input[start]) != std::string::npos)
-        ++start;
-    return input.substr(start);
-}
-
-std::string rtrim(const std::string& input, const std::string& delimiters) {
-    if (input.empty()) return "";
-
-    size_t end = input.size();
-    while (end > 0 && delimiters.find(input[end - 1]) != std::string::npos)
-        --end;
-    return input.substr(0, end);
-}
-
-std::vector<int> interpolate_arithmetic(int first, int last, int middle_terms) {
-    std::vector<int> result;
-    if (middle_terms < 0) return result;
-
-    double step = static_cast<double>(last - first) / (middle_terms + 1);
-    for (int i = 0; i <= middle_terms + 1; ++i)
-        result.push_back(static_cast<int>(first + i * step));
-    return result;
-}
-
-int count_digits(int value) {
-    if (value == 0) return 1;
-
-    int count = 0;
-    while (value != 0) {
-        ++count;
-        value /= 10;
+    
+    /// @brief checks if the given element is part of the vector before the specified value(it is used to draw the "|" on the X axis) 
+    /// @param j the element to be searched for in the vector
+    /// @param places the vector to be searched through
+    /// @param i the value that limits the search for the element
+    /// @return returns true if the element is in the range and false otherwise
+    bool hate::is_equal_to_in_vector(int j, std::vector<int> places, unsigned int i){
+        for(unsigned int k=0;k<places.size();k++){
+            if(j == places[k] and i>k){
+                return true;
+            }
+        }
+        return false;
     }
-    return count;
-}
-
-bool exists_before(const std::vector<int>& values, int target, unsigned int limit) {
-    for (unsigned int k = 0; k < values.size(); ++k) {
-        if (values[k] == target && k < limit)
-            return true;
-    }
-    return false;
-}
-
-} // namespace hate
