@@ -76,100 +76,169 @@ void chart::print(int max_bar_length)
         std::cout << " " << barra.label << " (" << barra.value << ")\n\n";
     }
 }
-    void chart::print_numberbar(int tamanho_barras, int n_ticks){
-        int minimum = tamanho_barras * ( stod(carters.back().value) / stod(carters.front().value) );
-        int maximum = tamanho_barras;
-        // LEMRAR DE FAZER A QUANTIDADE SER VARIÁVEL.
-        std::vector<int> places = hate::interpolate_AP(minimum, maximum, n_ticks-2);
-        std::vector<int> values = hate::interpolate_AP(stod(carters.back().value), stod(carters.front().value), n_ticks-2);
+   void chart::print_numberbar(int tamanho_barras, int n_ticks)
+{
+    if (carters.empty() || n_ticks < 2) return;
 
-        int vect_iter=0;
-        for(int i=0;i<1.5*tamanho_barras;i++){            
-            if(i==places[vect_iter]){
-                vect_iter++;
-                std::cout << "+";
+    double min_value = std::stod(carters.back().value);
+    double max_value = std::stod(carters.front().value);
+
+    int minimum = static_cast<int>(tamanho_barras * (min_value / max_value));
+    int maximum = tamanho_barras;
+
+    // Calcula posições e valores interpolados da escala
+    std::vector<int> places = hate::interpolate_AP(minimum, maximum, n_ticks - 2);
+    std::vector<int> values = hate::interpolate_AP(static_cast<int>(min_value), static_cast<int>(max_value), n_ticks - 2);
+
+    int vect_iter = 0;
+    const int total_length = static_cast<int>(1.5 * tamanho_barras);
+
+    // Linha da barra com ticks
+    for (int i = 0; i < total_length; ++i)
+    {
+        if (vect_iter < static_cast<int>(places.size()) && i == places[vect_iter])
+        {
+            std::cout << "+";
+            vect_iter++;
+        }
+        else if (i == total_length - 1)
+        {
+            std::cout << "|";
+        }
+        else
+        {
+            std::cout << "-";
+        }
+    }
+    std::cout << "\n";
+
+    // Impressão vertical dos valores e linhas auxiliares '|'
+    for (int i = static_cast<int>(places.size()) - 1; i >= 0; --i)
+    {
+        for (int j = 0; j < total_length; ++j)
+        {
+            if (j == places[i])
+            {
+                std::cout << values[i];
             }
-            else if(i==1.5*tamanho_barras-1){
+            else if (hate::is_equal_to_in_vector(j, places, i))
+            {
                 std::cout << "|";
             }
-            else{
-                std::cout << "-";
+            else
+            {
+                std::cout << " ";
             }
         }
         std::cout << "\n";
-        //criar a função gerar na horizontal
-        //if(não tem colisão)
-        //criar a função gerar na vertical
-        //else
-        //print_vertical(tamanho_barras);
-        for(int i=places.size()-1; i >= 0; i--){
-            for(int j=0;j<1.5*tamanho_barras;j++){
-                if(j==places[i]){
-                    //std::cout << "\n"<< j << " " << places[i] << "\n";
-                    std::cout << values[i];
-                }
-                else if(hate::is_equal_to_in_vector(j, places, i)){
-                    std::cout << "|";
-                }
-                else std::cout << " ";
-            }
-            std::cout << "\n";
-        }
-        std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+
+bool AnimationController::validate_bar(const std::vector<std::string>& processed_line)
+{
+    auto is_valid_index = [&](int idx) {
+        return idx < static_cast<int>(processed_line.size()) && !processed_line[idx].empty();
+    };
+
+    if (!is_valid_index(time_idx)) return false;
+    if (!is_valid_index(label_idx)) return false;
+    if (!is_valid_index(other_idx)) return false;
+
+    if (!is_valid_index(value_idx)) return false;
+    try
+    {
+        std::stoi(processed_line[value_idx]);
+    }
+    catch (const std::invalid_argument&)
+    {
+        return false;
     }
 
-bool AnimationController::validate_bar(std::vector<string> processed_line){
-    int a = processed_line.size();
-    if(a > time_idx){
-        if(processed_line[time_idx].empty()){
-            return false;
-        }
-    }
-    else{
-        return false;
-    }
-    if(a > label_idx){
-        if(processed_line[label_idx].empty()){
-            return false;
-        }
-    }
-    else{
-        return false;
-    }
-    if(a > other_idx){
-        if(processed_line[other_idx].empty()){
-            return false;
-        }
-    }
-    else{
-        return false;
-    }
-    if(a > value_idx){
-        if(processed_line[value_idx].empty())
+    if (!is_valid_index(category_idx)) return false;
+
+    return true;
+}void chart::print_numberbar(int tamanho_barras, int n_ticks)
+{
+    if (carters.empty() || n_ticks < 2) return;
+
+    double min_value = std::stod(carters.back().value);
+    double max_value = std::stod(carters.front().value);
+
+    int minimum = static_cast<int>(tamanho_barras * (min_value / max_value));
+    int maximum = tamanho_barras;
+
+    // Calcula posições e valores interpolados da escala
+    std::vector<int> places = hate::interpolate_AP(minimum, maximum, n_ticks - 2);
+    std::vector<int> values = hate::interpolate_AP(static_cast<int>(min_value), static_cast<int>(max_value), n_ticks - 2);
+
+    int vect_iter = 0;
+    const int total_length = static_cast<int>(1.5 * tamanho_barras);
+
+    // Linha da barra com ticks
+    for (int i = 0; i < total_length; ++i)
+    {
+        if (vect_iter < static_cast<int>(places.size()) && i == places[vect_iter])
         {
-            return false;
+            std::cout << "+";
+            vect_iter++;
         }
-        else{
-            try 
+        else if (i == total_length - 1)
+        {
+            std::cout << "|";
+        }
+        else
+        {
+            std::cout << "-";
+        }
+    }
+    std::cout << "\n";
+
+    // Impressão vertical dos valores e linhas auxiliares '|'
+    for (int i = static_cast<int>(places.size()) - 1; i >= 0; --i)
+    {
+        for (int j = 0; j < total_length; ++j)
+        {
+            if (j == places[i])
             {
-                std::stoi(processed_line[value_idx]);
+                std::cout << values[i];
             }
-            catch(std::invalid_argument& e){
-                return false;
+            else if (hate::is_equal_to_in_vector(j, places, i))
+            {
+                std::cout << "|";
+            }
+            else
+            {
+                std::cout << " ";
             }
         }
+        std::cout << "\n";
     }
-    else{
+    std::cout << "\n";
+}
+
+bool AnimationController::validate_bar(const std::vector<std::string>& processed_line)
+{
+    auto is_valid_index = [&](int idx) {
+        return idx < static_cast<int>(processed_line.size()) && !processed_line[idx].empty();
+    };
+
+    if (!is_valid_index(time_idx)) return false;
+    if (!is_valid_index(label_idx)) return false;
+    if (!is_valid_index(other_idx)) return false;
+
+    if (!is_valid_index(value_idx)) return false;
+    try
+    {
+        std::stoi(processed_line[value_idx]);
+    }
+    catch (const std::invalid_argument&)
+    {
         return false;
     }
-    if(a > category_idx){
-        if(processed_line[category_idx].empty()){
-            return false;
-        }
-    }
-    else{
-        return false;
-    }
+
+    if (!is_valid_index(category_idx)) return false;
+
     return true;
 }
 void AnimationController::process_events(){
