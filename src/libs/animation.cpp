@@ -8,63 +8,74 @@
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 
-void chart::no_disorder(long unsigned int max_bars_in_chart)
+void chart::no_disorder(size_t max_bars_in_chart)
+{
+    // Ordena em ordem decrescente baseado no valor convertido para double
+    std::stable_sort(carters.begin(), carters.end(),
+        [](const bar& a, const bar& b) {
+            return std::stod(b.value) < std::stod(a.value);
+        });
+
+    if (carters.size() > max_bars_in_chart)
     {
-        std::stable_sort(carters.begin(), carters.end(), [](bar a, bar b){return stod(b.value)<stod(a.value);});
-        if(carters.size() > max_bars_in_chart)
-        {
-            carters.erase(carters.begin() + max_bars_in_chart, carters.end());
-        }
+        carters.erase(carters.begin() + max_bars_in_chart, carters.end());
     }
-bool AnimationController::read_input(std::string delimiter)
+}
+
+bool AnimationController::read_input(const std::string& delimiter)
 {
     m_buffer.clear();
-    std::getline(std::cin, m_buffer);
+    if (!std::getline(std::cin, m_buffer))
+        return false;
+
     m_buffer = hate::strtolower(m_buffer);
-    m_input_vect=hate::split(m_buffer, delimiter);
+    m_input_vect = hate::split(m_buffer, delimiter);
     return !m_input_vect.empty();
 }
 
-std::unordered_set<std::string> category_set;
+static std::unordered_set<std::string> category_set;
 
-std::array<short, 16> cores = {Color::BLUE, Color::MAGENTA, Color::BLACK, Color::RED, Color::GREEN, Color::YELLOW,
-                               Color::CYAN, Color::WHITE,
-   Color::BRIGHT_BLACK, Color::BRIGHT_RED, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW,
-   Color::BRIGHT_BLUE, Color::BRIGHT_MAGENTA, Color::BRIGHT_CYAN, Color::BRIGHT_WHITE};
+static constexpr std::array<short, 16> cores = {
+    Color::BLUE, Color::MAGENTA, Color::BLACK, Color::RED, Color::GREEN,
+    Color::YELLOW, Color::CYAN, Color::WHITE,
+    Color::BRIGHT_BLACK, Color::BRIGHT_RED, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW,
+    Color::BRIGHT_BLUE, Color::BRIGHT_MAGENTA, Color::BRIGHT_CYAN, Color::BRIGHT_WHITE
+};
 
-short cat_to_color(std::string meow){
-        
-        
-        if(category_set.size() > 14)
-        {
-            return cores[5];
-        }
-        else
-        {
-            int i=0;
-            for(auto& cat : category_set)
-            {
-                if(cat == meow)
-                {
-                    return cores[i%(cores.size())];
-                }
-                i++;
-            }
-        }
+short cat_to_color(const std::string& category)
+{
+    if (category_set.size() > 14)
+        return cores[5]; // Retorna amarelo fixo se categorias são muitas
 
-        return cores[2];
-    }
-
-
-    void chart::print(int tamanho_barras)
+    int i = 0;
+    for (const auto& cat : category_set)
     {
-        std::cout << Time << "\n\n";
-        for(bar &barra : carters){
-            for(int i=0; i < std::floor(tamanho_barras/*Biggest bar size(configurable)*/ * ( stod(barra.value) / stod(carters[0].value)) ); ++i)
-                std::cout << Color::tcolor("█", cat_to_color(barra.category)); // Cor depende do "grupo"
-            std::cout << " " << barra.label << "(" << barra.value << ")" << "\n\n";
-        }
+        if (cat == category)
+            return cores[i % cores.size()];
+        ++i;
     }
+    return cores[2]; // Preto como fallback
+}
+
+void chart::print(int max_bar_length)
+{
+    std::cout << Time << "\n\n";
+
+    if (carters.empty()) return;
+
+    const double max_value = std::stod(carters[0].value);
+
+    for (const bar& barra : carters)
+    {
+        double val = std::stod(barra.value);
+        int bar_length = static_cast<int>(std::floor(max_bar_length * (val / max_value)));
+
+        for (int i = 0; i < bar_length; ++i)
+            std::cout << Color::tcolor("█", cat_to_color(barra.category));
+
+        std::cout << " " << barra.label << " (" << barra.value << ")\n\n";
+    }
+}
     void chart::print_numberbar(int tamanho_barras, int n_ticks){
         int minimum = tamanho_barras * ( stod(carters.back().value) / stod(carters.front().value) );
         int maximum = tamanho_barras;
